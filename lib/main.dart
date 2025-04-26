@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Initialize Firebase
   runApp(const MyApp());
 }
 
@@ -248,7 +252,32 @@ class GoogleSignInPage extends StatelessWidget {
   }
 }
 
-class CineNoteSignInPage extends StatelessWidget {
+class CineNoteSignInPage extends StatefulWidget {
+  @override
+  _CineNoteSignInPageState createState() => _CineNoteSignInPageState();
+}
+class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void _signIn() async {
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Signed in successfully!')),
+      );
+
+      Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? "Sign in failed.")),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -258,7 +287,6 @@ class CineNoteSignInPage extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: IconThemeData(color: Colors.white),
-
         backgroundColor: const Color.fromARGB(255, 96, 95, 95),
       ),
       backgroundColor: Colors.black,
@@ -269,6 +297,7 @@ class CineNoteSignInPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 hintText: 'E-mail', 
                 hintStyle: TextStyle(color: Colors.black),
@@ -279,6 +308,7 @@ class CineNoteSignInPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 hintText: 'Password', 
@@ -296,6 +326,7 @@ class CineNoteSignInPage extends StatelessWidget {
                 style: TextStyle(color: Colors.blue),
               ),
             ),
+            ElevatedButton(onPressed: _signIn, child: Text('Sign in'))
           ],
         ),
       ),
@@ -303,91 +334,147 @@ class CineNoteSignInPage extends StatelessWidget {
   }
 }
 
-class CreateAccountPage extends StatelessWidget {
+class CreateAccountPage extends StatefulWidget {
+  @override
+  _CreateAccountPageState createState() => _CreateAccountPageState();
+}
+
+class _CreateAccountPageState extends State<CreateAccountPage> {
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void _createAccount() async {
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Passwords do not match.")),
+      );
+      return;
+    }
+
+    try {
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Account created successfully!")),
+      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CineNoteSignInPage()),);
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? "An unknown error occurred!")),
+      );
+    }
+
+  }
+
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Create an Account',
+            style: TextStyle(color: Colors.white),
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
+          backgroundColor: const Color.fromARGB(255, 96, 95, 95),
+        ),
+        backgroundColor: Colors.black,
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: firstNameController,
+                decoration: InputDecoration(
+                  hintText: 'First Name',
+                  hintStyle: TextStyle(color: Colors.black),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.yellow,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: lastNameController,
+                decoration: InputDecoration(
+                  hintText: 'Last Name',
+                  hintStyle: TextStyle(color: Colors.black),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.yellow,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: 'E-mail',
+                  hintStyle: TextStyle(color: Colors.black),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.yellow,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  hintStyle: TextStyle(color: Colors.black),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.yellow,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Confirm Password',
+                  hintStyle: TextStyle(color: Colors.black),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.yellow,
+                ),
+              ),
+              SizedBox(height: 80),
+              ElevatedButton(
+                onPressed: _createAccount,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                ),
+                child: Text('Create Account'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+}
+
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Create an Account',
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: const Color.fromARGB(255, 96, 95, 95),
-      ),
       backgroundColor: Colors.black,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'First Name', 
-                hintStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.yellow,
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Last Name', 
-                hintStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.yellow,
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'E-mail', 
-                hintStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.yellow,
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              obscureText: true, 
-              decoration: InputDecoration(
-                hintText: 'Password',
-                hintStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.yellow,
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              obscureText: true, 
-              decoration: InputDecoration(
-                hintText: 'Confirm Password', 
-                hintStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.yellow,
-              ),
-            ),
-            SizedBox(height: 80),
-            ElevatedButton(
-              onPressed: () {
-                
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-              ),
-              child: Text('Create Account'),
-            ),
-          ],
+      appBar: AppBar(
+        title: Text('Home Page', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.grey,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: Text("Welcome to CineNote!",
+        style: TextStyle(color: Colors.yellow, fontSize: 24),
         ),
       ),
     );
   }
 }
-

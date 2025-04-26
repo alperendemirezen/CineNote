@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "970132270374",
+    "project_id": "cinenote-id",
+    "storage_bucket": "cinenote-id.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970132270374:android:b603a81dd89937dfc265e7",
+        "android_client_info": {
+          "package_name": "com.demirezenozturk.cinenote"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzFJxHcIfNFZeKlynJc1hHsNK7HH6w26k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
