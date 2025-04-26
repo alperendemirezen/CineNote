@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -219,7 +221,7 @@ class GoogleSignInPage extends StatelessWidget {
           children: [
             TextField(
               decoration: InputDecoration(
-                hintText: 'G-mail', 
+                hintText: 'G-mail',
                 hintStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(),
                 filled: true,
@@ -230,7 +232,7 @@ class GoogleSignInPage extends StatelessWidget {
             TextField(
               obscureText: true,
               decoration: InputDecoration(
-                hintText: 'Password', 
+                hintText: 'Password',
                 hintStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(),
                 filled: true,
@@ -256,6 +258,7 @@ class CineNoteSignInPage extends StatefulWidget {
   @override
   _CineNoteSignInPageState createState() => _CineNoteSignInPageState();
 }
+
 class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -264,20 +267,25 @@ class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
 
   void _signIn() async {
     try {
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signed in successfully!')),
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Signed in successfully!')));
 
-      Navigator.pushReplacement(context,
+      Navigator.pushReplacement(
+        context,
         MaterialPageRoute(builder: (context) => HomePage()),
       );
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? "Sign in failed.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? "Sign in failed.")));
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -299,7 +307,7 @@ class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
             TextField(
               controller: emailController,
               decoration: InputDecoration(
-                hintText: 'E-mail', 
+                hintText: 'E-mail',
                 hintStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(),
                 filled: true,
@@ -311,7 +319,7 @@ class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
               controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                hintText: 'Password', 
+                hintText: 'Password',
                 hintStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(),
                 filled: true,
@@ -326,7 +334,7 @@ class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
                 style: TextStyle(color: Colors.blue),
               ),
             ),
-            ElevatedButton(onPressed: _signIn, child: Text('Sign in'))
+            ElevatedButton(onPressed: _signIn, child: Text('Sign in')),
           ],
         ),
       ),
@@ -350,117 +358,150 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   void _createAccount() async {
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Passwords do not match.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Passwords do not match.")));
       return;
     }
 
     try {
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text.trim());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Account created successfully!")),
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CineNoteSignInPage()),);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Account created successfully!")));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CineNoteSignInPage()),
+      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message ?? "An unknown error occurred!")),
       );
     }
-
   }
 
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Create an Account',
-            style: TextStyle(color: Colors.white),
-          ),
-          iconTheme: IconThemeData(color: Colors.white),
-          backgroundColor: const Color.fromARGB(255, 96, 95, 95),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Create an Account', style: TextStyle(color: Colors.white)),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color.fromARGB(255, 96, 95, 95),
+      ),
+      backgroundColor: Colors.black,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: firstNameController,
+              decoration: InputDecoration(
+                hintText: 'First Name',
+                hintStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.yellow,
+              ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: lastNameController,
+              decoration: InputDecoration(
+                hintText: 'Last Name',
+                hintStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.yellow,
+              ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                hintText: 'E-mail',
+                hintStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.yellow,
+              ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: 'Password',
+                hintStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.yellow,
+              ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: 'Confirm Password',
+                hintStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.yellow,
+              ),
+            ),
+            SizedBox(height: 80),
+            ElevatedButton(
+              onPressed: _createAccount,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+              ),
+              child: Text('Create Account'),
+            ),
+          ],
         ),
-        backgroundColor: Colors.black,
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: firstNameController,
-                decoration: InputDecoration(
-                  hintText: 'First Name',
-                  hintStyle: TextStyle(color: Colors.black),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.yellow,
-                ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: lastNameController,
-                decoration: InputDecoration(
-                  hintText: 'Last Name',
-                  hintStyle: TextStyle(color: Colors.black),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.yellow,
-                ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: 'E-mail',
-                  hintStyle: TextStyle(color: Colors.black),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.yellow,
-                ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  hintStyle: TextStyle(color: Colors.black),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.yellow,
-                ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Confirm Password',
-                  hintStyle: TextStyle(color: Colors.black),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.yellow,
-                ),
-              ),
-              SizedBox(height: 80),
-              ElevatedButton(
-                onPressed: _createAccount,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                ),
-                child: Text('Create Account'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+      ),
+    );
+  }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<List<Map<String, dynamic>>> itemsFuture;
+  List<Map<String, dynamic>> searchResults = [];
+  String searchQuery = '';
+
+  void searchMoviesAndTvShows(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        searchResults = [];
+      });
+      return;
+    }
+
+    final movieResults = await TMDBService().searchMovies(query);
+    final tvResults = await TMDBService().searchTvShows(query);
+    final combinedResults = [...movieResults, ...tvResults];
+    setState(() {
+      searchResults = combinedResults;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    itemsFuture = TMDBService().fetchRandomMoviesAndTVShows();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -470,10 +511,177 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.grey,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: Text("Welcome to CineNote!",
-        style: TextStyle(color: Colors.yellow, fontSize: 24),
-        ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: itemsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(color: Colors.yellow),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Text(
+                'No data found.',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
+          } else {
+            final items = snapshot.data!;
+            final movies = items.sublist(0, 5);
+            final tvShows = items.sublist(5, 10);
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    child: TextField(
+                      onChanged: (value) {
+                        searchMoviesAndTvShows(value);
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search movies...',
+                        hintStyle: TextStyle(
+                          color: const Color.fromARGB(255, 60, 60, 60),
+                        ),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 202, 201, 201),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    ),
+                  ),
+
+                  if (searchResults.isNotEmpty)
+                    Container(
+                      height: 400,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 202, 201, 201),
+                        border: Border.all(color: Colors.black, width: 2.0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ListView.separated(
+                        itemCount: searchResults.length,
+                        separatorBuilder:
+                            (context, index) => Divider(
+                              color: Colors.grey,
+                              thickness: 1,
+                            ),
+                        itemBuilder: (context, index) {
+                          final movie = searchResults[index];
+                          final title =
+                              movie['title'] ?? movie['name'] ?? 'No Title';
+                          final posterPath = movie['poster_path'];
+
+                          return ListTile(
+                            leading:
+                                posterPath != null
+                                    ? Image.network(
+                                      'https://image.tmdb.org/t/p/w200$posterPath',
+                                      width: 50,
+                                      height: 75,
+                                      fit: BoxFit.cover,
+                                    )
+                                    : Container(
+                                      width: 50,
+                                      height: 75,
+                                      color: Colors.grey,
+                                    ),
+                            title: Text(
+                              title,
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                  SizedBox(height: 40),
+                  Text(
+                    'Movies',
+                    style: TextStyle(color: Colors.yellow, fontSize: 24),
+                  ),
+                  SizedBox(height: 10),
+                  Scrollbar(
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children:
+                            movies.map((movie) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child:
+                                    movie['poster_path'] != null
+                                        ? Image.network(
+                                          'https://image.tmdb.org/t/p/w200${movie['poster_path']}',
+                                          width: 94,
+                                          height: 150,
+                                          fit: BoxFit.cover,
+                                        )
+                                        : Container(
+                                          width: 94,
+                                          height: 150,
+                                          color: Colors.grey,
+                                        ),
+                              );
+                            }).toList(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 40),
+                  Text(
+                    'Series',
+                    style: TextStyle(color: Colors.yellow, fontSize: 24),
+                  ),
+                  SizedBox(height: 10),
+                  Scrollbar(
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children:
+                            tvShows.map((show) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child:
+                                    show['poster_path'] != null
+                                        ? Image.network(
+                                          'https://image.tmdb.org/t/p/w200${show['poster_path']}',
+                                          width: 94,
+                                          height: 150,
+                                          fit: BoxFit.cover,
+                                        )
+                                        : Container(
+                                          width: 94,
+                                          height: 150,
+                                          color: Colors.grey,
+                                        ),
+                              );
+                            }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
       ),
     );
   }
