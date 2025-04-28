@@ -6,7 +6,7 @@ import 'api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Initialize Firebase
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -198,6 +198,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 
 class GoogleSignInPage extends StatelessWidget {
   @override
@@ -534,8 +535,8 @@ class _HomePageState extends State<HomePage> {
             );
           } else {
             final items = snapshot.data!;
-            final movies = items.sublist(0, 5);
-            final tvShows = items.sublist(5, 10);
+            final movies = items.sublist(0, 10);
+            final tvShows = items.sublist(10, 20);
 
             return SingleChildScrollView(
               child: Column(

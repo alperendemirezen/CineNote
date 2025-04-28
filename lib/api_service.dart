@@ -52,10 +52,10 @@ Future<List<Map<String, dynamic>>> searchTvShows(String query) async {
       List tvShows = tvData['results'];
 
       movies.shuffle();
-      List randomMovies = movies.take(5).toList();
+      List randomMovies = movies.take(10).toList();
 
       tvShows.shuffle();
-      List randomTVShows = tvShows.take(5).toList();
+      List randomTVShows = tvShows.take(10).toList();
 
       List<Map<String, dynamic>> combinedList = [];
 
