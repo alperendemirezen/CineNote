@@ -4,45 +4,66 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 
 class TMDBService {
-  final String apiKey = 'b86f7fb1d525d761a53dc02e17cd1e5e'; 
+  final String apiKey = 'b86f7fb1d525d761a53dc02e17cd1e5e';
+
+  Future<Map<String, dynamic>> fetchMovieDetails(int id) async {
+    final url =
+        'https://api.themoviedb.org/3/movie/$id?api_key=$apiKey&language=en-US';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Detay verisi çekilemedi');
+    }
+  }
 
   Future<List<Map<String, dynamic>>> searchMovies(String query) async {
-  final response = await http.get(
-    Uri.parse('https://api.themoviedb.org/3/search/movie?api_key=$apiKey&query=$query'),
-  );
+    final response = await http.get(
+      Uri.parse(
+        'https://api.themoviedb.org/3/search/movie?api_key=$apiKey&query=$query',
+      ),
+    );
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    final List results = data['results'];
-    return results.cast<Map<String, dynamic>>();
-  } else {
-    throw Exception('Failed to search movies');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List results = data['results'];
+      return results.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to search movies');
+    }
   }
-}
 
-Future<List<Map<String, dynamic>>> searchTvShows(String query) async {
-  final response = await http.get(
-    Uri.parse('https://api.themoviedb.org/3/search/tv?api_key=$apiKey&query=$query'),
-  );
+  Future<List<Map<String, dynamic>>> searchTvShows(String query) async {
+    final response = await http.get(
+      Uri.parse(
+        'https://api.themoviedb.org/3/search/tv?api_key=$apiKey&query=$query',
+      ),
+    );
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    final List results = data['results'];
-    return results.cast<Map<String, dynamic>>();
-  } else {
-    throw Exception('Failed to search TV shows');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List results = data['results'];
+      return results.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to search TV shows');
+    }
   }
-}
-
 
   Future<List<Map<String, dynamic>>> fetchRandomMoviesAndTVShows() async {
     final random = Random();
 
-   
-    final movieResponse = await http.get(Uri.parse('https://api.themoviedb.org/3/movie/popular?api_key=$apiKey&language=en-US&page=1'));
+    final movieResponse = await http.get(
+      Uri.parse(
+        'https://api.themoviedb.org/3/movie/popular?api_key=$apiKey&language=en-US&page=1',
+      ),
+    );
 
-    
-    final tvResponse = await http.get(Uri.parse('https://api.themoviedb.org/3/tv/popular?api_key=$apiKey&language=en-US&page=1'));
+    final tvResponse = await http.get(
+      Uri.parse(
+        'https://api.themoviedb.org/3/tv/popular?api_key=$apiKey&language=en-US&page=1',
+      ),
+    );
 
     if (movieResponse.statusCode == 200 && tvResponse.statusCode == 200) {
       final movieData = jsonDecode(movieResponse.body);

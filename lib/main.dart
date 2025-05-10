@@ -199,7 +199,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-
 class GoogleSignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -579,10 +578,8 @@ class _HomePageState extends State<HomePage> {
                       child: ListView.separated(
                         itemCount: searchResults.length,
                         separatorBuilder:
-                            (context, index) => Divider(
-                              color: Colors.grey,
-                              thickness: 1,
-                            ),
+                            (context, index) =>
+                                Divider(color: Colors.grey, thickness: 1),
                         itemBuilder: (context, index) {
                           final movie = searchResults[index];
                           final title =
@@ -590,6 +587,14 @@ class _HomePageState extends State<HomePage> {
                           final posterPath = movie['poster_path'];
 
                           return ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetailsPage(item: movie),
+                                ),
+                              );
+                            },
                             leading:
                                 posterPath != null
                                     ? Image.network(
@@ -627,24 +632,38 @@ class _HomePageState extends State<HomePage> {
                             movies.map((movie) {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child:
-                                    movie['poster_path'] != null
-                                        ? Image.network(
-                                          'https://image.tmdb.org/t/p/w200${movie['poster_path']}',
-                                          width: 94,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        )
-                                        : Container(
-                                          width: 94,
-                                          height: 150,
-                                          color: Colors.grey,
-                                        ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => DetailsPage(
+                                              item: movie,
+                                            ), 
+                                      ),
+                                    );
+                                  },
+                                  child:
+                                      movie['poster_path'] != null
+                                          ? Image.network(
+                                            'https://image.tmdb.org/t/p/w200${movie['poster_path']}',
+                                            width: 94,
+                                            height: 150,
+                                            fit: BoxFit.cover,
+                                          )
+                                          : Container(
+                                            width: 94,
+                                            height: 150,
+                                            color: Colors.grey,
+                                          ),
+                                ),
                               );
                             }).toList(),
                       ),
                     ),
                   ),
+
                   SizedBox(height: 40),
                   Text(
                     'Series',
@@ -660,19 +679,32 @@ class _HomePageState extends State<HomePage> {
                             tvShows.map((show) {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child:
-                                    show['poster_path'] != null
-                                        ? Image.network(
-                                          'https://image.tmdb.org/t/p/w200${show['poster_path']}',
-                                          width: 94,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        )
-                                        : Container(
-                                          width: 94,
-                                          height: 150,
-                                          color: Colors.grey,
-                                        ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => DetailsPage(
+                                              item: show,
+                                            ), 
+                                      ),
+                                    );
+                                  },
+                                  child:
+                                      show['poster_path'] != null
+                                          ? Image.network(
+                                            'https://image.tmdb.org/t/p/w200${show['poster_path']}',
+                                            width: 94,
+                                            height: 150,
+                                            fit: BoxFit.cover,
+                                          )
+                                          : Container(
+                                            width: 94,
+                                            height: 150,
+                                            color: Colors.grey,
+                                          ),
+                                ),
                               );
                             }).toList(),
                       ),
@@ -686,4 +718,484 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class DetailsPage extends StatefulWidget {
+  final Map<String, dynamic> item;
+
+  const DetailsPage({Key? key, required this.item}) : super(key: key);
+
+  @override
+  _DetailsPageState createState() => _DetailsPageState();
+}
+
+class _DetailsPageState extends State<DetailsPage> {
+  Map<String, dynamic>? details;
+  Map<int, String> notesByMovieId = {};
+  Map<int, int> ratingByMovieId = {};
+  List<Map<String, String>> _comments = [];
+  final TextEditingController _commentController = TextEditingController();
+  TextEditingController _notesController = TextEditingController();
+  int _selectedRating = 0;
+
+  List<Map<String, String>> comments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDetails();
+  }
+
+  void fetchDetails() async {
+    try {
+      final data = await TMDBService().fetchMovieDetails(widget.item['id']);
+      setState(() {
+        details = data;
+      });
+    } catch (e) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = widget.item['title'] ?? widget.item['name'] ?? 'No Title';
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(title, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.grey[850],
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      body:
+          details == null
+              ? Center(child: CircularProgressIndicator(color: Colors.yellow))
+              : SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (details!['poster_path'] != null)
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            'https://image.tmdb.org/t/p/w300${details!['poster_path']}',
+                            height: 300,
+                          ),
+                        ),
+                      ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: Text(
+                        widget.item['title'] ??
+                            widget.item['name'] ??
+                            'No Title',
+                        style: TextStyle(
+                          color: Colors.yellow,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _infoCard("Genres", _getGenres(details!)),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: _infoCard(
+                            "Runtime",
+                            "${details!['runtime'] ?? '-'} min",
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: _infoCard(
+                            "Rating",
+                            "${details!['vote_average'] ?? '-'} / 10",
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: _infoCard(
+                            "Release",
+                            "${details!['release_date'] ?? '-'}",
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 30),
+                    Text(
+                      "Overview",
+                      style: TextStyle(
+                        color: Colors.yellow,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      details!['overview'] ?? '-',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    SizedBox(height: 20),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              onPressed: _openNotesDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[700],
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(
+                                "Notes",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              onPressed: _openRateDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[700],
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(
+                                "Rate",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              onPressed: _openCommentDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[700],
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(
+                                "Add Comment",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Text(
+                      "Comments",
+                      style: TextStyle(
+                        color: Colors.yellow,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    buildCommentsList(comments),
+                  ],
+                ),
+              ),
+    );
+  }
+
+  void _openNotesDialog() {
+    
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text("Notes", style: TextStyle(color: Colors.yellow)),
+          content: SizedBox(
+            width: 300,
+            height: 130,
+            child: TextField(
+              controller: _notesController,
+              maxLines: null,
+              expands: true,
+              keyboardType: TextInputType.multiline,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: "Write your notes here...",
+                hintStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.all(12),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                final note = _notesController.text.trim();
+                final movieId = widget.item['id'];
+
+                if (note.isNotEmpty) {
+                  setState(() {
+                    notesByMovieId[movieId] = note;
+                  });
+                }
+                Navigator.pop(context);
+              },
+              child: Text("Save", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _openRateDialog() {
+    double _rating = 0.0;
+    
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Column(
+            children: [
+              if (details!['poster_path'] != null)
+                Image.network(
+                  'https://image.tmdb.org/t/p/w200${details!['poster_path']}',
+                  height: 150,
+                ),
+              SizedBox(height: 10),
+              Text(
+                widget.item['title'] ?? widget.item['name'] ?? 'No Title',
+                style: TextStyle(color: Colors.yellow),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Rate", style: TextStyle(color: Colors.white)),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      int ratingValue = index + 1;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedRating = ratingValue;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                _selectedRating == ratingValue
+                                    ? Colors.yellow
+                                    : Colors.grey[700],
+                            foregroundColor: Colors.black,
+                            minimumSize: Size(32, 32),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Text(
+                            "$ratingValue",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (_selectedRating > 0) {
+                  final movieId = widget.item['id'];
+
+                  setState(() {
+                    ratingByMovieId[movieId] = _selectedRating;
+                  });
+
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Submit", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _openCommentDialog() {
+    TextEditingController _nameController = TextEditingController();
+    TextEditingController _commentInputController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text("Add Comment", style: TextStyle(color: Colors.yellow)),
+          content: SizedBox(
+            width: 300,
+            height: 180,
+            child: Column(
+              children: [
+                TextField(
+                  controller: _nameController,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "Your name",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.all(8),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Expanded(
+                  child: TextField(
+                    controller: _commentInputController,
+                    maxLines: null,
+                    expands: true,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Type your comment here...",
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                final name = _nameController.text.trim();
+                final text = _commentInputController.text.trim();
+                if (name.isNotEmpty && text.isNotEmpty) {
+                  setState(() {
+                    comments.add({'name': name, 'comment': text});
+                  });
+                }
+                Navigator.pop(context);
+              },
+              child: Text("Submit", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  TextStyle _text() => TextStyle(color: Colors.white, fontSize: 16);
+  TextStyle _label() => TextStyle(
+    color: Colors.yellow,
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
+  String _getGenres(Map<String, dynamic> data) {
+    final genres = data['genres'] as List<dynamic>?;
+    if (genres == null || genres.isEmpty) return '-';
+
+    final firstTwo = genres.take(2).map((g) => g['name']).toList();
+    return firstTwo.join(', ');
+  }
+
+  Widget _infoCard(String label, String value) {
+    return Container(
+      width: 150,
+      height: 120,
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+          SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget buildCommentsList(List<Map<String, String>> comments) {
+  return Column(
+    children:
+        comments
+            .map(
+              (comment) => Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        comment['name'] ?? 'Anonymous',
+                        style: TextStyle(
+                          color: Colors.yellow,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        comment['comment']?.isNotEmpty == true
+                            ? comment['comment']!
+                            : "No comment",
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                        softWrap: true,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+            .toList(),
+  );
 }
