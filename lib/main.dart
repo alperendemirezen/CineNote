@@ -278,7 +278,7 @@ class _CineNoteSignInPageState extends State<CineNoteSignInPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => NavigationBar()),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
 
     } on FirebaseAuthException catch (e) {
@@ -510,8 +510,19 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('Home Page', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey,
+        backgroundColor: const Color.fromARGB(255, 50, 50, 50),
         iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            },
+          )
+        ],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: itemsFuture,
@@ -573,7 +584,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       height: 400,
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 202, 201, 201),
+                        color: const Color.fromARGB(255, 50, 50, 50),
                         border: Border.all(color: Colors.black, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -612,10 +623,10 @@ class _HomePageState extends State<HomePage> {
                                     ),
                             title: Text(
                               title,
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyle(color: Colors.white),
                             ),
                           );
-                        },
+                        }
                       ),
                     ),
 
@@ -717,62 +728,6 @@ class _HomePageState extends State<HomePage> {
             );
           }
         },
-      ),
-    );
-  }
-}
-
-class NavigationBar extends StatefulWidget {
-  @override
-  _NavigationBarState createState() => _NavigationBarState();
-}
-
-class _NavigationBarState extends State<NavigationBar> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    HomePage(),
-    SearchTab(),
-    ProfilePage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.yellow,
-        unselectedItemColor: Colors.white70,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
-    );
-  }
-}
-
-class SearchTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text("Search", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey[850],
-      ),
-      body: Center(
-        child: Text("Search Page", style: TextStyle(color: Colors.white)),
       ),
     );
   }
