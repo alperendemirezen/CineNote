@@ -510,6 +510,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Home Page', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
         backgroundColor: isDarkMode ? const Color.fromARGB(255, 50, 50, 50) : Colors.yellow,
         iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black),

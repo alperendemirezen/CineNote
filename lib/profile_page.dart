@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'details_page.dart';
 import 'theme.dart';
+import 'main.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -212,6 +213,28 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text("Profile", style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
         backgroundColor: isDarkMode ? Colors.grey[850] : Colors.yellow,
         iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'logout') {
+                FirebaseAuth.instance.signOut();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                      (route) => false,
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Text('Logout'),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
