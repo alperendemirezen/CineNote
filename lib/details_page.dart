@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_project/theme.dart';
 import 'api_service.dart';
 
 class DetailsPage extends StatefulWidget {
@@ -35,8 +36,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Future<void> fetchDetails() async {
     try {
-      final int movieId = int.parse(widget.item['id']);
-      final data = await TMDBService().fetchMovieDetails(movieId);
+      final data = await TMDBService().fetchMovieDetails(widget.item['id']);
       setState(() {
         details = data;
       });
@@ -198,17 +198,17 @@ class _DetailsPageState extends State<DetailsPage> {
         margin: EdgeInsets.symmetric(horizontal: 4),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.grey[850],
+          color: isDarkMode ? Colors.grey[850] : Colors.yellow[100],
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+            Text(label, style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[850], fontSize: 14)),
             SizedBox(height: 6),
             Text(value,
                 style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    color: isDarkMode ? Colors.white : Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
           ],
         ),
       ),
@@ -227,7 +227,7 @@ class _DetailsPageState extends State<DetailsPage> {
           margin: const EdgeInsets.symmetric(vertical: 6),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[850],
+            color: isDarkMode ? Colors.grey[850] : Colors.yellow[100],
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -235,12 +235,12 @@ class _DetailsPageState extends State<DetailsPage> {
             children: [
               Text(comment['username'] ?? 'Anonymous',
                   style: TextStyle(
-                      color: Colors.yellow, fontWeight: FontWeight.bold)),
+                      color: isDarkMode ? Colors.yellow : Colors.black, fontWeight: FontWeight.bold)),
               if ((comment['comment'] ?? '').isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Text(comment['comment'],
-                      style: TextStyle(color: Colors.white)),
+                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.grey[850])),
                 ),
               if (comment['rating'] != null)
                 Row(
@@ -313,11 +313,11 @@ class _DetailsPageState extends State<DetailsPage> {
     final title = widget.item['title'] ?? widget.item['name'] ?? 'No Title';
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: Text(title, style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey[850],
-        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(title, style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+        backgroundColor: isDarkMode ? Colors.grey[850] : Colors.yellow,
+        iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black),
       ),
       body: details == null
           ? Center(child: CircularProgressIndicator(color: Colors.yellow))
@@ -342,14 +342,14 @@ class _DetailsPageState extends State<DetailsPage> {
                       onPressed: addToFavorites,
                       icon: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.yellow : Colors.white,
+                        color: isFavorite ? isDarkMode ? Colors.yellow : Colors.black : isDarkMode ? Colors.white : Colors.grey,
                       ),
                       label: Text(
                         isFavorite ? "Added to Favorites" : "Add to Favorites",
-                        style: TextStyle(color: isFavorite ? Colors.yellow : Colors.white),
+                        style: TextStyle(color: isFavorite ? isDarkMode ? Colors.yellow : Colors.black : isDarkMode ? Colors.white : Colors.grey),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[800],
+                        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.yellow,
                         foregroundColor: Colors.white,
                       ),
                     ),
@@ -360,7 +360,7 @@ class _DetailsPageState extends State<DetailsPage> {
             Center(
               child: Text(title,
                   style: TextStyle(
-                      color: Colors.yellow,
+                      color: isDarkMode ? Colors.yellow : Colors.black,
                       fontSize: 24,
                       fontWeight: FontWeight.bold)),
             ),
@@ -375,12 +375,12 @@ class _DetailsPageState extends State<DetailsPage> {
             SizedBox(height: 20),
             Text("Overview",
                 style: TextStyle(
-                    color: Colors.yellow,
+                    color: isDarkMode ? Colors.yellow : Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             Text(details!['overview'] ?? '',
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color: isDarkMode ? Colors.white: Colors.grey[850])),
             SizedBox(height: 30),
             Center(
               child: ElevatedButton(
@@ -394,7 +394,7 @@ class _DetailsPageState extends State<DetailsPage> {
             SizedBox(height: 30),
             Text("Comments",
                 style: TextStyle(
-                    color: Colors.yellow,
+                    color: isDarkMode ? Colors.yellow : Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.bold)),
             SizedBox(height: 10),

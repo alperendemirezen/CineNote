@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_project/theme.dart';
 import 'api_service.dart';
 import 'details_page.dart';
 import 'profile_page.dart';
@@ -507,11 +508,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: Text('Home Page', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 50, 50, 50),
-        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('Home Page', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+        backgroundColor: isDarkMode ? const Color.fromARGB(255, 50, 50, 50) : Colors.yellow,
+        iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black),
         actions: [
           IconButton(
             icon: Icon(Icons.person),
@@ -584,8 +585,8 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       height: 400,
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 50, 50, 50),
-                        border: Border.all(color: Colors.black, width: 2.0),
+                        color: isDarkMode ? const Color.fromARGB(255, 50, 50, 50) : Colors.yellow[100],
+                        border: Border.all(color: Colors.grey, width: 2.0),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ListView.separated(
@@ -619,11 +620,11 @@ class _HomePageState extends State<HomePage> {
                                     : Container(
                                       width: 50,
                                       height: 75,
-                                      color: Colors.grey,
+                                      color: isDarkMode ? Colors.grey : Colors.yellow[100],
                                     ),
                             title: Text(
                               title,
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color:isDarkMode ? Colors.white : Colors.black),
                             ),
                           );
                         }
@@ -633,7 +634,7 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: 40),
                   Text(
                     'Movies',
-                    style: TextStyle(color: Colors.yellow, fontSize: 24),
+                    style: TextStyle(color: isDarkMode ? Colors.yellow : Colors.black, fontSize: 24),
                   ),
                   SizedBox(height: 10),
                   Scrollbar(
@@ -680,7 +681,7 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: 40),
                   Text(
                     'Series',
-                    style: TextStyle(color: Colors.yellow, fontSize: 24),
+                    style: TextStyle(color: isDarkMode ? Colors.yellow : Colors.black, fontSize: 24),
                   ),
                   SizedBox(height: 10),
                   Scrollbar(

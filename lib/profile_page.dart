@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'details_page.dart';
+import 'theme.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -86,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
             margin: const EdgeInsets.symmetric(vertical: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey[850],
+              color: isDarkMode ? Colors.grey[850] : Color.fromARGB(50, 255, 235, 59),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -94,17 +95,17 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Text(
                   rating['movieTitle'] ?? 'Untitled',
-                  style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: isDarkMode ? Colors.yellow : Colors.black, fontWeight: FontWeight.bold),
                 ),
                 if ((rating['comment'] ?? '').isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text(rating['comment'], style: TextStyle(color: Colors.white)),
+                    child: Text(rating['comment'], style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
                   ),
                 if ((rating['note'] ?? '').isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text("Note: ${rating['note']}", style: TextStyle(color: Colors.white70)),
+                    child: Text("Note: ${rating['note']}", style: TextStyle(color: isDarkMode ? Colors.white70: Colors.grey[850])),
                   ),
                 Row(
                   children: List.generate(5, (index) {
@@ -185,7 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 6),
                   Text(
                     item['title'] ?? 'Untitled',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -206,11 +207,11 @@ class _ProfilePageState extends State<ProfilePage> {
         : const AssetImage("assets/default_avatar.png") as ImageProvider;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: const Text("Profile", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey[850],
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text("Profile", style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+        backgroundColor: isDarkMode ? Colors.grey[850] : Colors.yellow,
+        iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -225,9 +226,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(username, style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(username, style: TextStyle(fontSize: 20, color: isDarkMode ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
                         Text("Joined: $joinedDate", style: const TextStyle(color: Colors.grey)),
-                        if (bio.isNotEmpty) Text(bio, style: const TextStyle(color: Colors.white70)),
+                        if (bio.isNotEmpty) Text(bio, style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black)),
                       ],
                     ),
                   ),
@@ -250,8 +251,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               const SizedBox(height: 30),
-              const Divider(color: Colors.white24),
-              const Text("Your Ratings", style: TextStyle(color: Colors.yellow)),
+              Divider(color: isDarkMode ? Colors.white24 : Colors.grey),
+              Text("Your Ratings", style: TextStyle(color: isDarkMode ? Colors.yellow : Colors.black)),
               const SizedBox(height: 10),
               SizedBox(
                 height: 300,
@@ -261,8 +262,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 20),
 
-              const Divider(color: Colors.white24),
-              const Text("Your Favorites", style: TextStyle(color: Colors.yellow)),
+              Divider(color: isDarkMode ? Colors.white24 : Colors.grey),
+              Text("Your Favorites", style: TextStyle(color: isDarkMode ? Colors.yellow : Colors.black)),
               const SizedBox(height: 10),
               buildFavoritesList(),
               const SizedBox(height: 30),
@@ -353,8 +354,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 30, 30, 30),
-        title: const Text("Select Avatar", style: TextStyle(color: Colors.white)),
+        backgroundColor: isDarkMode ? const Color.fromARGB(255, 30, 30, 30) : Colors.white,
+        title: Text("Select Avatar", style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
         content: SingleChildScrollView(
           child: Column(
             children: avatarUrls.map((url) => GestureDetector(
@@ -399,11 +400,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
         : const AssetImage("assets/default_avatar.png") as ImageProvider;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: const Text("Edit Profile", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 50, 50, 50),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text("Edit Profile", style: TextStyle(color: isDarkMode ? Colors.white: Colors.black)),
+        backgroundColor: isDarkMode ? Colors.grey[900] : Colors.yellow,
+        iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -415,17 +416,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             TextButton(
               onPressed: _showAvatarSelectionDialog,
-              child: const Text("Change Image", style: TextStyle(color: Colors.yellow)),
+              child: Text("Change Image", style: TextStyle(color: isDarkMode? Colors.yellow: Colors.black)),
             ),
             ...[
               _buildInput("Username", _usernameController),
               _buildInput("Bio", _bioController),
               _buildInput("Email", _emailController),
               const Divider(color: Colors.white24, height: 40),
-              const Text("Change Password", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
+              Text("Change Password", style: TextStyle(color: isDarkMode? Colors.yellow : Colors.black, fontWeight: FontWeight.bold)),
               _buildInput("New Password", _newPasswordController, obscure: true),
               _buildInput("Confirm Password", _confirmPasswordController, obscure: true),
             ],
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Dark Mode",
+                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+                ),
+                Switch(
+                  value: isDarkMode,
+                  activeColor: Colors.yellow,
+                  onChanged: (bool value) {
+                    setState(() {
+                      isDarkMode = value;
+                    });
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveChanges,
@@ -448,12 +468,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
       child: TextField(
         controller: controller,
         obscureText: obscure,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.grey),
+          labelStyle: TextStyle(color: isDarkMode ? Colors.grey : Colors.black),
           filled: true,
-          fillColor: const Color.fromARGB(255, 35, 35, 35),
+          fillColor: isDarkMode ? const Color.fromARGB(255, 35, 35, 35) : Color.fromARGB(50, 255, 235, 59),
           border: const OutlineInputBorder(),
         ),
       ),
