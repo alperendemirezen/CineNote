@@ -16,12 +16,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String username = '', bio = '', imageUrl = '', email = '', joinedDate = '';
   List<Map<String, dynamic>> userRatings = [];
+  List<Map<String, dynamic>> userFavorites = [];
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
     _loadUserRatings();
+    _loadFavorites();
   }
 
   Future<void> _loadProfile() async {
@@ -70,7 +72,6 @@ class _ProfilePageState extends State<ProfilePage> {
       children: userRatings.map((rating) {
         return GestureDetector(
           onTap: () {
-            // burası neden çalışmıyor????
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -115,6 +116,86 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Future<void> _loadFavorites() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('favorites')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    setState(() {
+      userFavorites = snapshot.docs.map((doc) => doc.data()).toList();
+    });
+  }
+
+  Widget buildFavoritesList() {
+    if (userFavorites.isEmpty) {
+      return Text("No favorites yet.", style: TextStyle(color: Colors.grey[400]));
+    }
+
+    return SizedBox(
+      height: 200,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: userFavorites.length,
+        itemBuilder: (context, index) {
+          final item = userFavorites[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DetailsPage(item: {
+                    'id': item['id'],
+                    'title': item['title'],
+                    'poster_path': item['poster_path'],
+                  }),
+                ),
+              );
+            },
+            child: Container(
+              width: 120,
+              margin: const EdgeInsets.only(right: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: item['poster_path'] != null && item['poster_path'].isNotEmpty
+                        ? Image.network(
+                      'https://image.tmdb.org/t/p/w200${item['poster_path']}',
+                      width: 100,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    )
+                        : Container(
+                      width: 100,
+                      height: 150,
+                      color: Colors.grey,
+                      child: Icon(Icons.movie, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item['title'] ?? 'Untitled',
+                    style: const TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -172,8 +253,19 @@ class _ProfilePageState extends State<ProfilePage> {
               const Divider(color: Colors.white24),
               const Text("Your Ratings", style: TextStyle(color: Colors.yellow)),
               const SizedBox(height: 10),
-              buildUserRatingsList(),
+              SizedBox(
+                height: 300,
+                child: SingleChildScrollView(
+                  child: buildUserRatingsList(),
+                ),
+              ),
               const SizedBox(height: 20),
+
+              const Divider(color: Colors.white24),
+              const Text("Your Favorites", style: TextStyle(color: Colors.yellow)),
+              const SizedBox(height: 10),
+              buildFavoritesList(),
+              const SizedBox(height: 30),
             ],
           ),
         ),

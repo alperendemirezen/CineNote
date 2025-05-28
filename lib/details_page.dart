@@ -23,17 +23,20 @@ class _DetailsPageState extends State<DetailsPage> {
 
   int _selectedRating = 0;
   List<Map<String, dynamic>> comments = [];
+  bool isFavorite = false;
 
   @override
   void initState() {
     super.initState();
     fetchDetails();
     fetchComments();
+    checkIfFavorite();
   }
 
   Future<void> fetchDetails() async {
     try {
-      final data = await TMDBService().fetchMovieDetails(widget.item['id']);
+      final int movieId = int.parse(widget.item['id']);
+      final data = await TMDBService().fetchMovieDetails(movieId);
       setState(() {
         details = data;
       });
@@ -239,9 +242,6 @@ class _DetailsPageState extends State<DetailsPage> {
                   child: Text(comment['comment'],
                       style: TextStyle(color: Colors.white)),
                 ),
-              if ((comment['note'] ?? '').isNotEmpty)
-                Text("Note: ${comment['note']}",
-                    style: TextStyle(color: Colors.white70, fontSize: 12)),
               if (comment['rating'] != null)
                 Row(
                   children: List.generate(5, (index) {
@@ -257,6 +257,55 @@ class _DetailsPageState extends State<DetailsPage> {
         );
       }).toList(),
     );
+  }
+
+  Future<void> addToFavorites() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final movieId = widget.item['id'].toString();
+    final favoritesRef = _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('favorites')
+        .doc(movieId);
+
+    final snapshot = await favoritesRef.get();
+    if (snapshot.exists) {
+      await favoritesRef.delete();
+      setState(() => isFavorite = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Removed from favorites')),
+      );
+    } else {
+      await favoritesRef.set({
+        'id': movieId,
+        'title': widget.item['title'] ?? widget.item['name'] ?? 'Untitled',
+        'poster_path': widget.item['poster_path'] ?? '',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      setState(() => isFavorite = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Added to favorites')),
+      );
+    }
+  }
+
+  Future<void> checkIfFavorite() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final movieId = widget.item['id'].toString();
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('favorites')
+        .doc(movieId)
+        .get();
+
+    setState(() {
+      isFavorite = doc.exists;
+    });
   }
 
   @override
@@ -279,12 +328,32 @@ class _DetailsPageState extends State<DetailsPage> {
           children: [
             if (details!['poster_path'] != null)
               Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    'https://image.tmdb.org/t/p/w300${details!['poster_path']}',
-                    height: 300,
-                  ),
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        'https://image.tmdb.org/t/p/w300${details!['poster_path']}',
+                        height: 300,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: addToFavorites,
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.yellow : Colors.white,
+                      ),
+                      label: Text(
+                        isFavorite ? "Added to Favorites" : "Add to Favorites",
+                        style: TextStyle(color: isFavorite ? Colors.yellow : Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[800],
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             SizedBox(height: 20),
